@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<!--
+  Vor dem Hochladen ersetzen (Strg+H im Editor):
+    [App-Name]          → euer App-Name, z. B. Wochenteller
+    support@example.de  → deine Kontakt-E-Mail
+    PLAY-LINK           → Link zur App im Play Store (solange es den nicht gibt: so lassen,
+                          der Knopf zeigt dann "Bald bei Google Play")
+  Diese Seite lädt bewusst keine externen Schriften, Skripte oder Bilder.
+  Dadurch werden beim Aufruf keine Daten an Dritte übertragen (außer an GitHub als Hoster).
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[App-Name] – Essen für die Woche planen</title>
+  <meta name="description" content="[App-Name] plant deine Woche passend zu deinem Kalorienziel, mit Meal-Prep und fertiger Einkaufsliste. Ohne Konto, ohne Werbung, deine Daten bleiben auf dem Handy.">
+  <meta name="theme-color" content="#1F3A66">
+  <style>
+    :root {
+      --paper: #F6F7F4;
+      --enamel: #FFFFFF;
+      --ink: #1A2233;
+      --ink-soft: #4A5468;
+      --rim: #1F3A66;
+      --rim-soft: #DCE3EE;
+      --tomato: #D8432C;
+      --herb: #3F7A45;
+      --herb-soft: #E3EFE2;
+      --line: #D5D9E0;
+      --display: ui-rounded, "SF Pro Rounded", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+      --text: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #121826;
+        --enamel: #1B2334;
+        --ink: #EEF1F6;
+        --ink-soft: #A9B3C4;
+        --rim: #8FB0E8;
+        --rim-soft: #26324A;
+        --tomato: #F06A52;
+        --herb: #7BC283;
+        --herb-soft: #1F3326;
+        --line: #2F3A50;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 17px/1.6 var(--text);
+    }
+    a { color: var(--rim); text-underline-offset: 3px; }
+    a:focus-visible, .play:focus-visible { outline: 3px solid var(--tomato); outline-offset: 3px; border-radius: 6px; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+    /* Kopfzeile */
+    .top { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; gap: 16px; flex-wrap: wrap; }
+    .brand { font: 700 1.25rem/1 var(--display); color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .brand-mark { width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--rim); background: var(--enamel); display: grid; place-items: center; }
+    .brand-mark::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--tomato); }
+    .top nav { display: flex; gap: 20px; font-size: 0.95rem; }
+
+    /* Einstieg */
+    .hero { display: grid; grid-template-columns: 1fr 1.1fr; gap: 56px; align-items: center; padding: 40px 0 72px; }
+    h1 {
+      font: 800 clamp(2.2rem, 5vw, 3.5rem)/1.08 var(--display);
+      letter-spacing: -0.02em;
+      margin: 0 0 20px;
+    }
+    .lead { font-size: 1.15rem; color: var(--ink-soft); max-width: 34ch; margin: 0 0 28px; }
+    .play {
+      display: inline-flex; align-items: center; gap: 12px;
+      background: var(--ink); color: var(--paper);
+      padding: 14px 22px; border-radius: 14px;
+      font: 600 1rem/1.2 var(--text); text-decoration: none;
+    }
+    .play svg { width: 22px; height: 22px; flex: none; }
+    .play small { display: block; font-weight: 400; font-size: 0.78rem; opacity: 0.8; }
+    .note { font-size: 0.9rem; color: var(--ink-soft); margin-top: 14px; }
+
+    /* Der Wochenplan als Emaille-Tafel */
+    .board {
+      background: var(--enamel);
+      border: 6px solid var(--rim);
+      border-radius: 22px;
+      padding: 22px 22px 16px;
+      box-shadow: 0 1px 0 var(--rim-soft), 0 18px 40px -24px rgba(31, 58, 102, 0.45);
+    }
+    .board-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; gap: 12px; }
+    .board-title { font: 700 1.15rem/1.2 var(--display); margin: 0; }
+    .board-goal { font-size: 0.85rem; color: var(--ink-soft); white-space: nowrap; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    th { text-align: left; font-weight: 600; color: var(--ink-soft); font-size: 0.8rem; padding: 6px 8px; border-bottom: 2px solid var(--rim-soft); }
+    td { padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    tr:last-child td { border-bottom: 0; }
+    td.day { font: 700 0.95rem/1.4 var(--display); width: 2.6em; color: var(--rim); }
+    td.kcal { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    td.kcal span { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--herb-soft); color: var(--herb); font-weight: 600; }
+    .prep { display: inline-block; margin-left: 4px; font-size: 0.75rem; font-weight: 600; color: var(--tomato); white-space: nowrap; }
+    .prep::before { content: "↻ "; }
+    .board-foot { font-size: 0.8rem; color: var(--ink-soft); margin: 10px 0 0; }
+
+    /* Abschnitte */
+    section { padding: 64px 0; border-top: 1px solid var(--line); }
+    h2 { font: 800 clamp(1.6rem, 3.4vw, 2.2rem)/1.15 var(--display); letter-spacing: -0.01em; margin: 0 0 28px; max-width: 24ch; }
+    h3 { font: 700 1.1rem/1.3 var(--display); margin: 0 0 6px; }
+    p { margin: 0 0 12px; }
+
+    .steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; counter-reset: step; }
+    .steps li { counter-increment: step; }
+    .steps li::before {
+      content: counter(step);
+      display: grid; place-items: center;
+      width: 40px; height: 40px; margin-bottom: 14px;
+      border-radius: 50%; border: 3px solid var(--rim);
+      font: 800 1.1rem/1 var(--display); color: var(--rim);
+    }
+    .steps p, .features p { color: var(--ink-soft); }
+
+    .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px 48px; }
+    .features div { padding-left: 18px; border-left: 3px solid var(--rim-soft); }
+
+    .promise { background: var(--rim); color: #fff; border-radius: 22px; padding: 44px 40px; border-top: 0; margin: 64px 0; }
+    .promise h2 { color: #fff; margin-bottom: 16px; }
+    .promise p { color: #DCE6F7; max-width: 60ch; }
+    @media (prefers-color-scheme: dark) {
+      .promise { background: var(--rim-soft); }
+      .promise p { color: var(--ink-soft); }
+    }
+
+    .price { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .price div { background: var(--enamel); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+    .price div:last-child { border: 2px solid var(--rim); }
+    .price ul { margin: 8px 0 0; padding-left: 20px; color: var(--ink-soft); }
+
+    .health { font-size: 0.9rem; color: var(--ink-soft); max-width: 70ch; }
+
+    footer { border-top: 1px solid var(--line); padding: 32px 0 48px; font-size: 0.9rem; color: var(--ink-soft); }
+    footer .row { display: flex; flex-wrap: wrap; gap: 12px 28px; margin-bottom: 14px; }
+
+    @media (max-width: 820px) {
+      .hero { grid-template-columns: 1fr; gap: 36px; padding-top: 16px; }
+      .steps, .features, .price { grid-template-columns: 1fr; }
+      .promise { padding: 32px 24px; border-radius: 18px; }
+    }
+    @media (max-width: 420px) {
+      .board { padding: 16px 12px 12px; border-width: 5px; }
+      td, th { padding-left: 5px; padding-right: 5px; }
+      table { font-size: 0.86rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="./"><span class="brand-mark" aria-hidden="true"></span>[App-Name]</a>
+      <nav aria-label="Rechtliches">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+      </nav>
+    </header>
+
+    <main>
+      <div class="hero">
+        <div>
+          <h1>Die Essenswoche steht. Die Einkaufsliste auch.</h1>
+          <p class="lead">[App-Name] plant deine Mahlzeiten aus deinen Rezepten, passend zu deinem Kalorienziel. Auf Wunsch mit Meal-Prep: Was du abends kochst, gibt es am nächsten Tag zu Mittag.</p>
+          <a class="play" id="play" href="PLAY-LINK">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 2.8v18.4c0 .5.5.8 1 .6l15.6-8.9c.5-.3.5-1 0-1.3L5 2.2c-.5-.2-1 .1-1 .6Z"/></svg>
+            <span><small>Für Android</small><span id="play-label">Bei Google Play laden</span></span>
+          </a>
+          <p class="note">Kostenlos laden. Kein Konto nötig.</p>
+        </div>
+
+        <figure class="board" aria-label="Beispiel eines Wochenplans in der App" style="margin:0">
+          <div class="board-head">
+            <p class="board-title">Deine Woche</p>
+            <span class="board-goal">Ziel 2.000 kcal/Tag</span>
+          </div>
+          <table>
+            <thead>
+              <tr><th scope="col">Tag</th><th scope="col">Mittag</th><th scope="col">Abend</th><th scope="col" style="text-align:right">kcal</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="day">Mo</td><td>Linsensalat mit Feta</td><td>Chili sin Carne</td><td class="kcal"><span>1.960</span></td></tr>
+              <tr><td class="day">Di</td><td>Chili sin Carne <span class="prep">Rest von Mo</span></td><td>Ofengemüse mit Hähnchen</td><td class="kcal"><span>2.040</span></td></tr>
+              <tr><td class="day">Mi</td><td>Ofengemüse mit Hähnchen <span class="prep">Rest von Di</span></td><td>Gemüse-Curry mit Reis</td><td class="kcal"><span>1.980</span></td></tr>
+              <tr><td class="day">Do</td><td>Gemüse-Curry mit Reis <span class="prep">Rest von Mi</span></td><td>Vollkornpasta mit Tomaten&shy;soße</td><td class="kcal"><span>2.010</span></td></tr>
+              <tr><td class="day">Fr</td><td>Wraps mit Hummus</td><td>Kartoffel-Lauch-Suppe</td><td class="kcal"><span>1.950</span></td></tr>
+            </tbody>
+          </table>
+          <p class="board-foot">Jeder Tag liegt höchstens 10 % neben deinem Ziel. Fixierte Gerichte bleiben, der Rest lässt sich neu würfeln.</p>
+        </figure>
+      </div>
+
+      <section aria-labelledby="ablauf">
+        <h2 id="ablauf">In drei Schritten zum Wochenplan</h2>
+        <ol class="steps">
+          <li>
+            <h3>Woche festlegen</h3>
+            <p>Zeitraum, Mahlzeiten und Kalorienziel wählen. Vegan, vegetarisch oder glutenfrei? Das stellst du einmal ein.</p>
+          </li>
+          <li>
+            <h3>Plan erstellen lassen</h3>
+            <p>Die App verteilt deine Rezepte über die Woche. Was dir gefällt, fixierst du. Den Rest lässt du neu erstellen, bis es passt.</p>
+          </li>
+          <li>
+            <h3>Einkaufen</h3>
+            <p>Die Einkaufsliste entsteht aus dem Plan, Zutaten werden zusammengefasst. Im Laden hakst du einfach ab.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section aria-labelledby="funktionen">
+        <h2 id="funktionen">Was die App kann</h2>
+        <div class="features">
+          <div>
+            <h3>Deine eigenen Rezepte</h3>
+            <p>Startrezepte sind dabei. Eigene Rezepte legst du mit Zutaten und Portionen an, die Kalorien rechnet die App aus.</p>
+          </div>
+          <div>
+            <h3>Meal-Prep eingebaut</h3>
+            <p>Einmal kochen, zweimal essen: Das Abendessen wird automatisch zum Mittagessen am nächsten Tag.</p>
+          </div>
+          <div>
+            <h3>Lieblingsgerichte gezielt einplanen</h3>
+            <p>Lege fest, wie oft ein Rezept in der Woche vorkommen soll. Die App verteilt es sinnvoll.</p>
+          </div>
+          <div>
+            <h3>Zutaten per Barcode</h3>
+            <p>Packung scannen, Name und Kalorien werden aus der freien Datenbank Open Food Facts übernommen.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="promise" aria-labelledby="daten">
+        <h2 id="daten">Deine Daten bleiben auf deinem Handy.</h2>
+        <p>Kein Konto, keine Werbung, kein Tracking. Rezepte, Pläne und Einkaufslisten werden nur auf deinem Gerät gespeichert. Beim Scannen eines Barcodes wird nur die Barcode-Nummer an Open Food Facts gesendet.</p>
+      </section>
+
+      <section aria-labelledby="preis">
+        <h2 id="preis">Kostenlos starten, einmal freischalten</h2>
+        <div class="price">
+          <div>
+            <h3>Kostenlos</h3>
+            <p>Alles, was du zum Ausprobieren brauchst: Wochenplan, Einkaufsliste, Startrezepte und eigene Rezepte.</p>
+          </div>
+          <div>
+            <h3>Pro, einmaliger Kauf</h3>
+            <p>Schaltet alle Funktionen dauerhaft frei. Kein Abo, keine Folgekosten.</p>
+          </div>
+        </div>
+      </section>
+
+      <section aria-label="Hinweis">
+        <p class="health">Hinweis: [App-Name] hilft bei der allgemeinen Planung deiner Mahlzeiten. Die Kalorienangaben sind Richtwerte. Die App ersetzt keine ärztliche Beratung oder Ernährungsberatung, etwa bei Erkrankungen, Unverträglichkeiten oder in der Schwangerschaft.</p>
+      </section>
+    </main>
+
+    <footer>
+      <div class="row">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutzerklärung</a>
+        <a href="mailto:support@example.de">support@example.de</a>
+      </div>
+      <p>Lebensmitteldaten aus <a href="https://world.openfoodfacts.org" rel="noopener">Open Food Facts</a>, verfügbar unter der Open Database License (ODbL).</p>
+      <p>© 2026 [App-Name]</p>
+    </footer>
+  </div>
+
+  <script>
+    // Solange der Play-Store-Link noch nicht eingetragen ist, zeigt der Knopf "Bald bei Google Play".
+    (function () {
+      var a = document.getElementById('play');
+      if (a.getAttribute('href') === 'PLAY-LINK') {
+        a.removeAttribute('href');
+        a.setAttribute('aria-disabled', 'true');
+        a.style.opacity = '0.75';
+        document.getElementById('play-label').textContent = 'Bald bei Google Play';
+      }
+    })();
+  </script>
+</body>
+</html>
